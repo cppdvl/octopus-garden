@@ -9,5 +9,6 @@
     <qresource prefix="/assets/images">
         <file alias="GenericFolder">images/Generic.png</file>
         <file alias="GenericImage">images/Pictures.png</file>
+        <file alias="Spinning">images/clipart2500846.png</file>
     </qresource>
 </RCC>

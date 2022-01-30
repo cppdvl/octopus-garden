@@ -1,6 +1,8 @@
 import QtQuick 2.15
 import QtQuick.Window 2.15
+import QtQuick.Controls 2.5
 import "datacheat.js" as BackendData
+import "backend.js" as BackendController
 Window {
 
     id: mainWindow
@@ -12,6 +14,7 @@ Window {
 
 
     property real mainRowHeightFactor : 0.95
+
     property string color0: "#2696D9"
     property string color1: "#C226D9"
     property string color2: "#D96926"
@@ -30,63 +33,17 @@ Window {
             opacity: 0.4
         }
         Rectangle { color: color0; width: parent.width * 0.70; height: parent.height
-            id: gridContainer
+            id: gridContainerRectangle
             border.color: "blue"
             Grid {
+                id: gridContainer
+                y : 100
                 columns: 6
                 width: parent.width
                 spacing: 20
-                AssetItem {
-                    assetType: "folder"}
-                AssetItem {
-                    color: "transparent"
-                    assetType: "image"
+                Component.onCompleted: {
+                    BackendData.initData(BackendData.data).forEach((element, index) => { BackendController.createAssetItem(gridContainer, element.name, element.assetType, element.source); });
                 }
-                AssetItem {
-                    color: "transparent"
-                    assetType: "image"
-                }
-                AssetItem {
-                    color: "transparent"
-                    assetType: "image"
-                }
-                AssetItem {
-                    color: "transparent"
-                    assetType: "image"
-                }
-                AssetItem {
-                    color: "transparent"
-                    assetType: "image"
-                }
-                AssetItem {
-                    color: "transparent"
-                    assetType: "image"
-                }
-                AssetItem {
-                    color: "transparent"
-                    assetType: "image"
-                }
-                AssetItem {
-                    color: "transparent"
-                    assetType: "image"
-                }
-                AssetItem {
-                    color: "transparent"
-                    assetType: "image"
-                }
-                AssetItem {
-                    color: "transparent"
-                    assetType: "image"
-                }
-                AssetItem {
-                    color: "transparent"
-                    assetType: "image"
-                }
-                AssetItem {
-                    color: "transparent"
-                    assetType: "image"
-                }
-
             }
         }
     }
@@ -94,7 +51,7 @@ Window {
     Component.onCompleted: {
 
         console.log("Under the sea challenge Jan - 2022 for AppOnBoard!!!");
-
+        BackendController.createAssetItemComponent();
     }
 
 }
