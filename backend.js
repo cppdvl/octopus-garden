@@ -75,8 +75,8 @@ function update(dataLoaded, gridContainer, dataModel, selectedItemCallback)
 }
 
 
-function assetItemSelectedCallback(gridContainer, dataModel, index) {
-
+function assetItemSelectedCallback(gridContainer, dataModel, index)
+{
     let dataItem = dataModel.get(index)
     if (dataItem.children !== "")
     {
@@ -88,7 +88,8 @@ function assetItemSelectedCallback(gridContainer, dataModel, index) {
     }
 }
 
-function backButtonClickedCallback(gridContainer, dataModel) {
+function backButtonClickedCallback(gridContainer, dataModel)
+{
 
     let prnt = dataModel.parentData.pop();
     let formattedData = startData(prnt);
