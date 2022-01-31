@@ -1,7 +1,7 @@
 import QtQuick 2.15
 import QtQuick.Window 2.15
 import QtQuick.Controls 2.5
-import "datacheat.js" as BackendData
+import "datacheat.js" as BackendTestData
 import "backend.js" as BackendController
 Window {
 
@@ -20,21 +20,43 @@ Window {
     property string color2: "#D96926"
     property string color3: "#3DD926"
 
+    ListModel {
+        id: currentFolderData
+        property var parentData : []
+    }
+    Rectangle {
+        width: mainWindow.width
+        height: mainWindow.height * 0.025
+        x: 0
+        y: 0
+        Text {
+            anchors.fill: parent
+            text: currentFolderData.parentData.length
+
+        }
+    }
+
     Row {
 
         anchors.centerIn: parent
         width: parent.width
         height: parent.height * mainRowHeightFactor
 
-        property real rheight: height
-        property real rwidth: width
 
-        Rectangle { color: color0; width: parent.width * 0.30; height: parent.height
-            opacity: 0.4
-        }
-        Rectangle { color: color0; width: parent.width * 0.70; height: parent.height
+        Rectangle { color: color0; width: parent.width; height: parent.height
             id: gridContainerRectangle
             border.color: "blue"
+            Button {
+                id: backButton
+                text : "Back"
+                onClicked : {
+                    BackendController.backButtonClickedCallback(gridContainer, currentFolderData);
+                    backButton.visible = currentFolderData.parentData.length > 0 ? true : false;
+                    console.log("<= parent is now:", currentFolderData.parentData.length)
+
+                }
+            }
+
             Grid {
                 id: gridContainer
                 y : 100
@@ -42,7 +64,21 @@ Window {
                 width: parent.width
                 spacing: 20
                 Component.onCompleted: {
-                    BackendData.initData(BackendData.data).forEach((element, index) => { BackendController.createAssetItem(gridContainer, element.name, element.assetType, element.source); });
+
+                    // Visible Button should be invisible
+                    backButton.visible = currentFolderData.parentData.length > 0 ? true : false
+
+                    // load Static Data
+                    let dataLoaded = BackendController.startData(BackendTestData.data)
+
+                    //The assets in the grid and the data in the model
+                    BackendController.update(dataLoaded, gridContainer, currentFolderData, (index) => {
+                                                 BackendController.assetItemSelectedCallback(gridContainer, currentFolderData, index);
+                                                 backButton.visible = currentFolderData.parentData.length > 0 ? true : false;
+                                                 console.log("=> parent is now:", currentFolderData.parentData.length)
+
+                                             });
+
                 }
             }
         }

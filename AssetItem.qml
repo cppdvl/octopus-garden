@@ -1,17 +1,25 @@
 import QtQuick 2.0
 
 Rectangle {
+    id: assetItem
+
+    property var selectionCallback : (index) => {console.log(index)}
+    Component.onCompleted: {
+        assetItem.selected.connect(selectionCallback);
+    }
 
     property string caption : "--=--"
     property string assetType : "folder"
-
+    property int index : 0
     property string source : "qrc:/assets/images/GenericImage"
+
     property var mapTypeImage : {
         "folder" : "qrc:/assets/images/GenericFolder",
         "image" : source
     }
 
-    id: assetItem
+    signal selected(int index);
+
     color: "transparent"
     width: 100
     height: width
@@ -53,6 +61,9 @@ Rectangle {
             assetItem.color = "aqua"
         }
         onExited: assetItem.color = "transparent"
+        onClicked: {
+            assetItem.selected(assetItem.index)
+        }
 
         anchors.fill:parent
         hoverEnabled: true
