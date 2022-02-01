@@ -21,41 +21,12 @@ function createAssetItem(parent, index, name, assetType, source, selectedItemCal
 {
     assetItemComponent.createObject(parent, {index : index, assetType : assetType, caption : name, source : source, selectionCallback: selectedItemCallback})
 }
-
-function updateRenderAndDataModel(gridContainer, dataModel, element, index, selectedItemCallback)
+function updateRender(gridContainer, element, index, selectedItemCallback)
 {
-    //spawn an Item in the Grid.
-    createAssetItem(gridContainer, index, element.name, element.assetType, element.source, selectedItemCallback);
-
-    //spawn an Insert an Element in the dataModel.
-    dataModel.insert(index, {"name" : element.name, "assetType" : element.assetType, "source" : element.source, "children" : element.children });
+    let assetType = element.isFolder ? "folder" : "image";
+    createAssetItem(gridContainer, index, element.name, assetType, element.source, selectedItemCallback);
 }
-function generateParentJSON(dataModel)
-{
-    var parentJSON = []
-    for(let index = 0; index < dataModel.count; ++index)
-    {
-        let listEntry = dataModel.get(index);
-        if (listEntry.children === "")
-        {
-            parentJSON.push({
-                                "name" : listEntry.name,
-                                "url" : "",
-                                "icon" : listEntry.source
-                            });
-        }
-        else
-        {
-            parentJSON.push({
-                                "name" : listEntry.name,
-                                "url" : "",
-                                "children" : JSON.parse(listEntry.children)
-                            });
 
-        }
-    }
-    return parentJSON;
-}
 
 function saturnEatYourChildren(gridContainer)
 {
@@ -64,55 +35,15 @@ function saturnEatYourChildren(gridContainer)
         gridContainer.children[index-1].destroy();
     }
 }
-
-function update(dataLoaded, gridContainer, dataModel, selectedItemCallback)
+function update(dataToRender, gridContainer, selectedItemCallback)
 {
-    dataModel.clear();
     saturnEatYourChildren(gridContainer);
-    dataLoaded.forEach((element, index) => {
-                           updateRenderAndDataModel(gridContainer, dataModel, element, index, selectedItemCallback);
-                       });
+    dataToRender.forEach((element, index) => {
+                             updateRender(gridContainer, element, index, selectedItemCallback);
+                         });
 }
 
 
-function assetItemSelectedCallback(gridContainer, dataModel, index)
-{
-    let dataItem = dataModel.get(index)
-    if (dataItem.children !== "")
-    {
-        let parentJSON = generateParentJSON(dataModel);
-        dataModel.parentData.push(parentJSON);
-        let chldrn = JSON.parse(dataItem.children);
-        let dataLoaded = startData(chldrn);
-        update(dataLoaded, gridContainer, dataModel, (index) => {assetItemSelectedCallback(gridContainer, dataModel, index);} );
-    }
-}
-
-function backButtonClickedCallback(gridContainer, dataModel)
-{
-
-    let prnt = dataModel.parentData.pop();
-    let formattedData = startData(prnt);
-    update(formattedData, gridContainer, dataModel, (index) => {assetItemSelectedCallback(gridContainer, dataModel, index);} );
-
-}
-
-function startData(data)
-{
-    let viewDataParameters = []
-    let f = (element, index) => {
-
-        let viewDataParameter = {
-            assetType : "children" in element ? "folder" : "image",
-            name : element["name"],
-            source : "children" in element ? "" : element["icon"],
-            children : "children" in element ? JSON.stringify(element["children"]) : ""
-        }
-        viewDataParameters.push(viewDataParameter);
-    };
-    data.forEach(f);
-    return viewDataParameters;
-}
 
 
 

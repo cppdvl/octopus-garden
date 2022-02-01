@@ -4,7 +4,6 @@
         <file>AssetItem.qml</file>
         <file>BackButton.qml</file>
         <file>backend.js</file>
-        <file>datacheat.js</file>
     </qresource>
     <qresource prefix="/assets/images">
         <file alias="GenericFolder">images/Generic.png</file>

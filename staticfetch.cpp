@@ -14,12 +14,42 @@ StaticFetchModel::StaticFetchModel(QObject *parent) : QObject(parent)
 
 void StaticFetchModel::fetchItem(int itemIndex)
 {
-    qInfo() << "Fetch" << itemIndex;
+    auto folderElement = currentFolderModel[itemIndex].toObject();
+    auto isFolder = folderElement.find("children") != folderElement.end();
+
+    if (isFolder){
+        parentFolderModel.push(currentFolderModel);
+        currentFolderModel = folderElement["children"].toArray();
+        calculateDataToRender();
+
+    } else {
+        //Do nothing
+    }
+
 }
 
 void StaticFetchModel::fetchBack()
 {
-    qInfo() << "Back!!";
+    Q_ASSERT(parentFolderModel.empty() == false);
+    currentFolderModel = parentFolderModel.pop();
+    calculateDataToRender();
+}
+
+void StaticFetchModel::calculateDataToRender()
+{
+    auto dataToRender = QJsonArray{};
+    for (auto folderElementInaccesibleRef : currentFolderModel){
+
+        auto folderElement = folderElementInaccesibleRef.toObject();
+        auto folderElementIsAnImage = folderElement.find("children") != folderElement.end();
+        QJsonObject o {
+            {"name",        folderElement["name"].toString()},
+            {"source",      folderElement["icon"].toString()},
+            {"isFolder",    folderElementIsAnImage}
+        };
+        dataToRender.push_back(QJsonValue(o));
+    }
+    emit modelRefreshed(dataToRender.toVariantList(), parentFolderModel.empty());
 }
 
 void StaticFetchModel::refresh(){
@@ -36,7 +66,6 @@ void StaticFetchModel::refresh(){
         dataModel = pReply->readAll(); pReply->close(); pReply->deleteLater();
 
         auto dataModelUTF8 = QString(dataModel).toUtf8();
-        qInfo() << dataModelUTF8;
         auto doc = QJsonDocument::fromJson(dataModelUTF8);
 
         data = doc.isArray() ? doc.array() : QJsonArray{};
@@ -45,24 +74,11 @@ void StaticFetchModel::refresh(){
         if (!data.empty()){
 
             currentFolderModel = QJsonArray{};
-            parentFolderModel = QJsonArray{};
+            parentFolderModel = QStack<QJsonArray>{};
             currentFolderModel = data;
+            calculateDataToRender();
 
-            auto dataToRender = QJsonArray{};
-            for (auto folderElementInaccesibleRef : currentFolderModel){
-
-                auto folderElement = folderElementInaccesibleRef.toObject();
-                auto folderElementIsAnImage = folderElement.find("children") == folderElement.end();
-                qInfo() << folderElement["name"].toString();
-                QJsonObject o {
-                    {"name",        folderElement["name"].toString()},
-                    {"source",      folderElement["icon"].toString()},
-                    {"isFolder",    folderElementIsAnImage ? false : true}
-                };
-                dataToRender.push_back(QJsonValue(o));
-            }
-            emit modelRefreshed(dataToRender.toVariantList(), true);
-        }
+        } else Q_ASSERT(false);
     });
 
 
