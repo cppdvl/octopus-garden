@@ -1,6 +1,7 @@
 #ifndef STATICFETCH_H
 #define STATICFETCH_H
 
+#include <QColor>
 #include <QObject>
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
@@ -9,22 +10,27 @@
 class StaticFetchModel : public QObject
 {
     Q_OBJECT
-    QByteArray dataModel;
-    QJsonArray jsonModel;
+    QJsonArray data;
+    QJsonArray currentFolderModel;
+    QJsonArray parentFolderModel;
     QVector<QString> currentFolderData{};
     QUrl qUrl;
+
+    void refresh();
+
 public:
-    explicit StaticFetchModel(QObject *parent = nullptr,
-                         const QUrl qUrl = QUrl{"https://s3.amazonaws.com/com.buildbox.dev.interview/UnderTheSea/data.json"});
+
+    explicit StaticFetchModel(QObject *parent = nullptr);
     QNetworkAccessManager networkManager{};
     QNetworkReply* pReply;
 
-
+    QVariantList varlist();
 
 signals:
-    void modelRefreshed();
+    void modelRefreshed(QVariantList lollipop, bool top);
 public slots:
-    void refresh();
+    void fetchItem(int);
+    void fetchBack();
 
 
 

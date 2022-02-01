@@ -1,8 +1,10 @@
-import QtQuick 2.15
-import QtQuick.Window 2.15
+import QtQuick 2.0
+import QtQuick.Window 2.12
 import QtQuick.Controls 2.5
 import "datacheat.js" as BackendTestData
 import "backend.js" as BackendController
+import under.the.sea.challenge 1.0
+
 Window {
 
     id: mainWindow
@@ -20,8 +22,24 @@ Window {
     property string color2: "#D96926"
     property string color3: "#3DD926"
 
-    ListModel {
+    UTSCDataModel{
         id: currentFolderData
+        onModelRefreshed: (lollipop, top) =>
+        {
+            lollipop.forEach((element, index)=>{
+                                 console.log("*************");
+                                 console.log("name:", element.name, index);
+                                 console.log("source:", element.source, index);
+                                 console.log("isFolder:", element.isFolder, index);
+                                 console.log("*************");
+                             });
+            backButton.visible = top ? false : true;
+
+        }
+    }
+
+    ListModel {
+        id: currentFolderData_
         property var parentData : []
     }
     Rectangle {
@@ -31,7 +49,7 @@ Window {
         y: 0
         Text {
             anchors.fill: parent
-            text: currentFolderData.parentData.length
+            text: currentFolderData_.parentData.length
 
         }
     }
@@ -50,10 +68,7 @@ Window {
                 id: backButton
                 text : "Back"
                 onClicked : {
-                    BackendController.backButtonClickedCallback(gridContainer, currentFolderData);
-                    backButton.visible = currentFolderData.parentData.length > 0 ? true : false;
-                    console.log("<= parent is now:", currentFolderData.parentData.length)
-
+                    currentFolderData.fetchBack();
                 }
             }
 
@@ -65,17 +80,14 @@ Window {
                 spacing: 20
                 Component.onCompleted: {
 
-                    // Visible Button should be invisible
-                    backButton.visible = currentFolderData.parentData.length > 0 ? true : false
-
                     // load Static Data
                     let dataLoaded = BackendController.startData(BackendTestData.data)
 
                     //The assets in the grid and the data in the model
-                    BackendController.update(dataLoaded, gridContainer, currentFolderData, (index) => {
-                                                 BackendController.assetItemSelectedCallback(gridContainer, currentFolderData, index);
-                                                 backButton.visible = currentFolderData.parentData.length > 0 ? true : false;
-                                                 console.log("=> parent is now:", currentFolderData.parentData.length)
+                    BackendController.update(dataLoaded, gridContainer, currentFolderData_, (index) => {
+                                                 BackendController.assetItemSelectedCallback(gridContainer, currentFolderData_, index);
+                                                 backButton.visible = currentFolderData_.parentData.length > 0 ? true : false;
+                                                 console.log("=> parent is now:", currentFolderData_.parentData.length)
 
                                              });
 
