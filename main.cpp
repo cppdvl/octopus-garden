@@ -1,12 +1,17 @@
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
 
+#include <QQmlContext>
+#include "staticfetch.h"
 
 int main(int argc, char *argv[])
 {
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
 #endif
+
+    //Register My DataModel
+    qmlRegisterType<StaticFetchModel>("under.the.sea.challenge", 1, 0, "UTSCDataModel");
 
     QGuiApplication app(argc, argv);
 
